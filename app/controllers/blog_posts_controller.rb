@@ -3,7 +3,7 @@ class BlogPostsController < ApplicationController
     before_action :set_block_post, except: [:index, :new, :create]
 
     def index
-        @blog_posts = BlogPost.all
+        @blog_posts = user_signed_in? ? BlogPost.sorted : BlogPost.published.sorted
     end
 
     def show
@@ -42,11 +42,11 @@ class BlogPostsController < ApplicationController
     private
 
     def blog_posts_params
-        params.require(:blog_post).permit(:title, :text)
+        params.require(:blog_post).permit(:title, :text, :published_at)
     end
 
     def set_block_post
-        @blog_post = BlogPost.find(params[:id])
+        @blog_post = user_signed_in? ? BlogPost.find(params[:id]) : BlogPost.published.find(params[:id])
     rescue ActiveRecord::RecordNotFound
         redirect_to root_path
     end
